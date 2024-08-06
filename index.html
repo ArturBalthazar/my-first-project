@@ -25,6 +25,25 @@
             transform: translateX(-50%);
             z-index: 100;
         }
+        .control-button {
+            margin: 0 5px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .control-button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+        .control-button:active {
+            background-color: #004494;
+            transform: scale(1.02);
+        }
         #inspectorButton {
             position: absolute;
             top: 10px;
@@ -47,18 +66,13 @@
             background-color: #004494;
             transform: scale(1.02);
         }
-        button {
-            margin: 0 5px;
-            padding: 10px 20px;
-            font-size: 16px;
-        }
     </style>
 </head>
 <body>
     <canvas id="renderCanvas"></canvas>
     <div id="controls">
-        <button id="dayButton">Day</button>
-        <button id="nightButton">Night</button>
+        <button id="dayButton" class="control-button">Day</button>
+        <button id="nightButton" class="control-button">Night</button>
     </div>
     <button id="inspectorButton">Open Inspector</button>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
@@ -67,4 +81,3 @@
     <script src="index.js"></script>
 </body>
 </html>
-
