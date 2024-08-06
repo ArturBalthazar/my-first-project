@@ -60,6 +60,38 @@ const createScene = () => {
         console.error("Exception:", exception);
     });
 
+    // Function to switch IBL instantly
+    const switchIBL = (newTexture) => {
+        scene.environmentTexture = newTexture;
+    };
+
+    // Event listeners for buttons
+    dayButton.addEventListener('click', () => {
+        if (texturesLoaded) {
+            console.log("Switching to day IBL...");
+            switchIBL(dayTexture);
+        }
+    });
+
+    nightButton.addEventListener('click', () => {
+        if (texturesLoaded) {
+            console.log("Switching to night IBL...");
+            switchIBL(nightTexture);
+        }
+    });
+
+    // Inspector button
+    inspectorButton.addEventListener('click', () => {
+        console.log("Opening Inspector...");
+        if (scene.debugLayer.isVisible()) {
+            scene.debugLayer.hide();
+        } else {
+            scene.debugLayer.show({
+                embedMode: true,
+            });
+        }
+    });
+
     return scene;
 };
 
@@ -78,32 +110,4 @@ engine.runRenderLoop(() => {
 
 window.addEventListener('resize', () => {
     engine.resize();
-});
-
-// Function to switch IBL instantly
-const switchIBL = (newTexture) => {
-    scene.environmentTexture = newTexture;
-};
-
-// Event listeners for buttons
-dayButton.addEventListener('click', () => {
-    if (texturesLoaded) {
-        console.log("Switching to day IBL...");
-        switchIBL(dayTexture);
-    }
-});
-
-nightButton.addEventListener('click', () => {
-    if (texturesLoaded) {
-        console.log("Switching to night IBL...");
-        switchIBL(nightTexture);
-    }
-});
-
-// Inspector button
-inspectorButton.addEventListener('click', () => {
-    console.log("Opening Inspector...");
-    scene.debugLayer.show({
-        embedMode: true,
-    });
 });
