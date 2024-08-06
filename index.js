@@ -5,18 +5,6 @@ console.log("Canvas element:", canvas);
 const engine = new BABYLON.Engine(canvas, true);
 console.log("Babylon.js engine created");
 
-let dayTexture;
-let nightTexture;
-let texturesLoaded = false;
-
-const dayButton = document.getElementById('dayButton');
-const nightButton = document.getElementById('nightButton');
-const inspectorButton = document.getElementById('inspectorButton');
-
-// Disable buttons until textures are loaded
-dayButton.disabled = true;
-nightButton.disabled = true;
-
 const createScene = () => {
     console.log("Creating scene...");
     const scene = new BABYLON.Scene(engine);
@@ -26,20 +14,19 @@ const createScene = () => {
     camera.attachControl(canvas, true);
     const light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1, 1, 0), scene);
 
-    // Preload the IBL textures
-    console.log("Preloading IBL environment textures...");
-    dayTexture = new BABYLON.CubeTexture.CreateFromPrefilteredData("./day.env", scene, () => {
-        console.log("Day texture loaded");
-        checkTexturesLoaded();
+    // Load the initial IBL environment texture (day)
+    console.log("Loading initial IBL environment...");
+    let hdrTextureDay = new BABYLON.CubeTexture.CreateFromPrefilteredData("./day.env", scene);
+    let hdrTextureNight = new BABYLON.CubeTexture.CreateFromPrefilteredData("./night.env", scene);
+
+    // Preload the textures
+    hdrTextureDay.onLoadObservable.addOnce(() => {
+        hdrTextureNight.onLoadObservable.addOnce(() => {
+            console.log("IBL environments preloaded.");
+        });
     });
 
-    nightTexture = new BABYLON.CubeTexture.CreateFromPrefilteredData("./night.env", scene, () => {
-        console.log("Night texture loaded");
-        checkTexturesLoaded();
-    });
-
-    // Set the initial texture
-    scene.environmentTexture = dayTexture;
+    scene.environmentTexture = hdrTextureDay;
 
     // Set the background texture
     console.log("Setting background texture...");
@@ -60,47 +47,7 @@ const createScene = () => {
         console.error("Exception:", exception);
     });
 
-    // Function to switch IBL instantly
-    const switchIBL = (newTexture) => {
-        scene.environmentTexture = newTexture;
-    };
-
-    // Event listeners for buttons
-    dayButton.addEventListener('click', () => {
-        if (texturesLoaded) {
-            console.log("Switching to day IBL...");
-            switchIBL(dayTexture);
-        }
-    });
-
-    nightButton.addEventListener('click', () => {
-        if (texturesLoaded) {
-            console.log("Switching to night IBL...");
-            switchIBL(nightTexture);
-        }
-    });
-
-    // Inspector button
-    inspectorButton.addEventListener('click', () => {
-        console.log("Opening Inspector...");
-        if (scene.debugLayer.isVisible()) {
-            scene.debugLayer.hide();
-        } else {
-            scene.debugLayer.show({
-                embedMode: true,
-            });
-        }
-    });
-
     return scene;
-};
-
-const checkTexturesLoaded = () => {
-    if (dayTexture.isReady() && nightTexture.isReady()) {
-        texturesLoaded = true;
-        dayButton.disabled = false;
-        nightButton.disabled = false;
-    }
 };
 
 const scene = createScene();
@@ -110,4 +57,33 @@ engine.runRenderLoop(() => {
 
 window.addEventListener('resize', () => {
     engine.resize();
+});
+
+// Function to switch IBL
+const switchIBL = (newTexture) => {
+    const targetTexture = newTexture;
+    scene.environmentTexture = targetTexture;
+};
+
+// Event listeners for buttons
+document.getElementById('dayButton').addEventListener('click', () => {
+    console.log("Switching to day IBL...");
+    switchIBL(hdrTextureDay);
+});
+
+document.getElementById('nightButton').addEventListener('click', () => {
+    console.log("Switching to night IBL...");
+    switchIBL(hdrTextureNight);
+});
+
+// Inspector button event listener
+document.getElementById('inspectorButton').addEventListener('click', () => {
+    console.log("Opening inspector...");
+    if (scene.debugLayer.isVisible()) {
+        scene.debugLayer.hide();
+    } else {
+        scene.debugLayer.show({
+            embedMode: true,
+        });
+    }
 });
