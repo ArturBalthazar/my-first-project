@@ -14,15 +14,16 @@ const createScene = () => {
     camera.attachControl(canvas, true);
     const light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1, 1, 0), scene);
 
-    // Load the initial IBL environment texture (day)
-    console.log("Loading initial IBL environment...");
-    let hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData("day.env", scene);
-    scene.environmentTexture = hdrTexture;
+    // Preload the IBL textures
+    console.log("Preloading IBL environment textures...");
+    const dayTexture = new BABYLON.CubeTexture.CreateFromPrefilteredData("./day.env", scene);
+    const nightTexture = new BABYLON.CubeTexture.CreateFromPrefilteredData("./night.env", scene);
+    scene.environmentTexture = dayTexture; // Set the initial texture
 
     // Set the background texture
     console.log("Setting background texture...");
     const backgroundTexture = new BABYLON.CubeTexture(
-        "cubemap/",
+        "./cubemap/",
         scene,
         ["px.jpg", "nx.jpg", "py.jpg", "ny.jpg", "pz.jpg", "nz.jpg"]
     );
@@ -30,12 +31,44 @@ const createScene = () => {
 
     // Load the GLB model
     console.log("Attempting to load model...");
-    BABYLON.SceneLoader.Append("", "model.glb", scene, function () {
+    BABYLON.SceneLoader.Append("./", "model.glb", scene, function () {
         console.log("Model loaded successfully");
     }, function (scene, message, exception) {
         console.error("Failed to load model");
         console.error("Message:", message);
         console.error("Exception:", exception);
+    });
+
+    // Function to switch IBL with a fading effect
+    const switchIBL = (newTexture) => {
+        let currentTexture = scene.environmentTexture;
+        let alpha = 0;
+        const fadeDuration = 4000; // 4 seconds
+        const fadeInterval = 50; // ms
+
+        const fadeStep = () => {
+            alpha += fadeInterval / fadeDuration;
+            if (alpha >= 1) {
+                scene.environmentTexture = newTexture;
+                currentTexture.dispose();
+                return;
+            }
+            scene.environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(`data:image/png;base64,${alpha}`, scene);
+            setTimeout(fadeStep, fadeInterval);
+        };
+
+        fadeStep();
+    };
+
+    // Event listeners for buttons
+    document.getElementById('dayButton').addEventListener('click', () => {
+        console.log("Switching to day IBL...");
+        switchIBL(dayTexture);
+    });
+
+    document.getElementById('nightButton').addEventListener('click', () => {
+        console.log("Switching to night IBL...");
+        switchIBL(nightTexture);
     });
 
     return scene;
@@ -48,39 +81,4 @@ engine.runRenderLoop(() => {
 
 window.addEventListener('resize', () => {
     engine.resize();
-});
-
-// Function to switch IBL
-const switchIBL = (newTexturePath) => {
-    const targetTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(newTexturePath, scene);
-    targetTexture.onLoadObservable.addOnce(() => {
-        let currentLevel = 0;
-        let fadeDuration = 4000; // 4 seconds
-        let startTime = performance.now();
-
-        const fade = () => {
-            let elapsedTime = performance.now() - startTime;
-            currentLevel = elapsedTime / fadeDuration;
-            if (currentLevel > 1) {
-                currentLevel = 1;
-                scene.environmentTexture = targetTexture;
-            } else {
-                scene.environmentTexture.level = 1 - currentLevel;
-                targetTexture.level = currentLevel;
-                requestAnimationFrame(fade);
-            }
-        };
-        fade();
-    });
-};
-
-// Event listeners for buttons
-document.getElementById('dayButton').addEventListener('click', () => {
-    console.log("Switching to day IBL...");
-    switchIBL('day.env');
-});
-
-document.getElementById('nightButton').addEventListener('click', () => {
-    console.log("Switching to night IBL...");
-    switchIBL('night.env');
 });
