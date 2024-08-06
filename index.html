@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Babylon.js Scene</title>
+    <title>Babylon.js Inspector Test</title>
     <style>
         body, html {
             margin: 0;
@@ -18,22 +18,11 @@
             height: 100%;
             touch-action: none;
         }
-        #controls {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-            display: flex;
-            gap: 10px;
-        }
         #inspectorButton {
             position: absolute;
             top: 10px;
             right: 10px;
             z-index: 100;
-        }
-        button {
             background-color: #007bff;
             color: white;
             border: none;
@@ -43,30 +32,56 @@
             cursor: pointer;
             transition: background-color 0.3s, transform 0.3s;
         }
-        button:hover {
+        #inspectorButton:hover {
             background-color: #0056b3;
             transform: scale(1.05);
         }
-        button:active {
+        #inspectorButton:active {
             background-color: #004494;
             transform: scale(1.02);
-        }
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
         }
     </style>
 </head>
 <body>
     <canvas id="renderCanvas"></canvas>
-    <div id="controls">
-        <button id="dayButton">Day</button>
-        <button id="nightButton">Night</button>
-    </div>
     <button id="inspectorButton">Open Inspector</button>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
-    <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
     <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
-    <script src="index.js"></script>
+    <script>
+        const canvas = document.getElementById('renderCanvas');
+        const engine = new BABYLON.Engine(canvas, true);
+
+        const createScene = () => {
+            const scene = new BABYLON.Scene(engine);
+
+            const camera = new BABYLON.ArcRotateCamera('camera1', 0, Math.PI / 2, 10, BABYLON.Vector3.Zero(), scene);
+            camera.attachControl(canvas, true);
+            const light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1, 1, 0), scene);
+
+            const sphere = BABYLON.MeshBuilder.CreateSphere('sphere', { diameter: 2 }, scene);
+
+            return scene;
+        };
+
+        const scene = createScene();
+        engine.runRenderLoop(() => {
+            scene.render();
+        });
+
+        window.addEventListener('resize', () => {
+            engine.resize();
+        });
+
+        const inspectorButton = document.getElementById('inspectorButton');
+        inspectorButton.addEventListener('click', () => {
+            if (scene.debugLayer.isVisible()) {
+                scene.debugLayer.hide();
+            } else {
+                scene.debugLayer.show({
+                    embedMode: true,
+                });
+            }
+        });
+    </script>
 </body>
 </html>
