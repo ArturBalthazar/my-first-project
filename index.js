@@ -12,9 +12,10 @@ const createScene = () => {
     const scene = new BABYLON.Scene(engine);
 
     // Create a basic light and camera
-    const camera = new BABYLON.ArcRotateCamera('camera1', 0, Math.PI / 2, 10, BABYLON.Vector3.Zero(), scene);
+    const camera = new BABYLON.ArcRotateCamera('camera1', BABYLON.Tools.ToRadians(45), BABYLON.Tools.ToRadians(60), 40, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, true);
-    camera.lowerRadiusLimit = 2;  // Minimum zoom distance
+    camera.lowerRadiusLimit = 20;  // Minimum zoom distance (half the start distance)
+    camera.upperRadiusLimit = 40;  // Maximum zoom distance (start distance)
     camera.wheelDeltaPercentage = 0.01;  // Smoother zoom
 
     const light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1, 1, 0), scene);
