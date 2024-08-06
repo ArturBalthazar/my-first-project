@@ -18,7 +18,9 @@ const createScene = () => {
     console.log("Preloading IBL environment textures...");
     const dayTexture = new BABYLON.CubeTexture.CreateFromPrefilteredData("./day.env", scene);
     const nightTexture = new BABYLON.CubeTexture.CreateFromPrefilteredData("./night.env", scene);
-    scene.environmentTexture = dayTexture; // Set the initial texture
+
+    // Set the initial texture
+    scene.environmentTexture = dayTexture;
 
     // Set the background texture
     console.log("Setting background texture...");
@@ -39,25 +41,9 @@ const createScene = () => {
         console.error("Exception:", exception);
     });
 
-    // Function to switch IBL with a fading effect
+    // Function to switch IBL instantly
     const switchIBL = (newTexture) => {
-        let currentTexture = scene.environmentTexture;
-        let alpha = 0;
-        const fadeDuration = 4000; // 4 seconds
-        const fadeInterval = 50; // ms
-
-        const fadeStep = () => {
-            alpha += fadeInterval / fadeDuration;
-            if (alpha >= 1) {
-                scene.environmentTexture = newTexture;
-                currentTexture.dispose();
-                return;
-            }
-            scene.environmentTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(`data:image/png;base64,${alpha}`, scene);
-            setTimeout(fadeStep, fadeInterval);
-        };
-
-        fadeStep();
+        scene.environmentTexture = newTexture;
     };
 
     // Event listeners for buttons
