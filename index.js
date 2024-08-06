@@ -5,6 +5,8 @@ console.log("Canvas element:", canvas);
 const engine = new BABYLON.Engine(canvas, true);
 console.log("Babylon.js engine created");
 
+let hdrTextureDay, hdrTextureNight;
+
 const createScene = () => {
     console.log("Creating scene...");
     const scene = new BABYLON.Scene(engine);
@@ -12,21 +14,23 @@ const createScene = () => {
     // Create a basic light and camera
     const camera = new BABYLON.ArcRotateCamera('camera1', 0, Math.PI / 2, 10, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, true);
+    camera.lowerRadiusLimit = 2;  // Minimum zoom distance
+    camera.wheelDeltaPercentage = 0.01;  // Smoother zoom
+
     const light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1, 1, 0), scene);
 
     // Load the initial IBL environment texture (day)
     console.log("Loading initial IBL environment...");
-    let hdrTextureDay = new BABYLON.CubeTexture.CreateFromPrefilteredData("./day.env", scene);
-    let hdrTextureNight = new BABYLON.CubeTexture.CreateFromPrefilteredData("./night.env", scene);
+    hdrTextureDay = new BABYLON.CubeTexture.CreateFromPrefilteredData("./day.env", scene);
+    hdrTextureNight = new BABYLON.CubeTexture.CreateFromPrefilteredData("./night.env", scene);
 
     // Preload the textures
     hdrTextureDay.onLoadObservable.addOnce(() => {
         hdrTextureNight.onLoadObservable.addOnce(() => {
             console.log("IBL environments preloaded.");
+            scene.environmentTexture = hdrTextureDay;  // Set the initial environment texture
         });
     });
-
-    scene.environmentTexture = hdrTextureDay;
 
     // Set the background texture
     console.log("Setting background texture...");
