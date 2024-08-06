@@ -5,6 +5,18 @@ console.log("Canvas element:", canvas);
 const engine = new BABYLON.Engine(canvas, true);
 console.log("Babylon.js engine created");
 
+let dayTexture;
+let nightTexture;
+let texturesLoaded = false;
+
+const dayButton = document.getElementById('dayButton');
+const nightButton = document.getElementById('nightButton');
+const inspectorButton = document.getElementById('inspectorButton');
+
+// Disable buttons until textures are loaded
+dayButton.disabled = true;
+nightButton.disabled = true;
+
 const createScene = () => {
     console.log("Creating scene...");
     const scene = new BABYLON.Scene(engine);
@@ -16,8 +28,15 @@ const createScene = () => {
 
     // Preload the IBL textures
     console.log("Preloading IBL environment textures...");
-    const dayTexture = new BABYLON.CubeTexture.CreateFromPrefilteredData("./day.env", scene);
-    const nightTexture = new BABYLON.CubeTexture.CreateFromPrefilteredData("./night.env", scene);
+    dayTexture = new BABYLON.CubeTexture.CreateFromPrefilteredData("./day.env", scene, () => {
+        console.log("Day texture loaded");
+        checkTexturesLoaded();
+    });
+
+    nightTexture = new BABYLON.CubeTexture.CreateFromPrefilteredData("./night.env", scene, () => {
+        console.log("Night texture loaded");
+        checkTexturesLoaded();
+    });
 
     // Set the initial texture
     scene.environmentTexture = dayTexture;
@@ -41,23 +60,15 @@ const createScene = () => {
         console.error("Exception:", exception);
     });
 
-    // Function to switch IBL instantly
-    const switchIBL = (newTexture) => {
-        scene.environmentTexture = newTexture;
-    };
-
-    // Event listeners for buttons
-    document.getElementById('dayButton').addEventListener('click', () => {
-        console.log("Switching to day IBL...");
-        switchIBL(dayTexture);
-    });
-
-    document.getElementById('nightButton').addEventListener('click', () => {
-        console.log("Switching to night IBL...");
-        switchIBL(nightTexture);
-    });
-
     return scene;
+};
+
+const checkTexturesLoaded = () => {
+    if (dayTexture.isReady() && nightTexture.isReady()) {
+        texturesLoaded = true;
+        dayButton.disabled = false;
+        nightButton.disabled = false;
+    }
 };
 
 const scene = createScene();
@@ -67,4 +78,32 @@ engine.runRenderLoop(() => {
 
 window.addEventListener('resize', () => {
     engine.resize();
+});
+
+// Function to switch IBL instantly
+const switchIBL = (newTexture) => {
+    scene.environmentTexture = newTexture;
+};
+
+// Event listeners for buttons
+dayButton.addEventListener('click', () => {
+    if (texturesLoaded) {
+        console.log("Switching to day IBL...");
+        switchIBL(dayTexture);
+    }
+});
+
+nightButton.addEventListener('click', () => {
+    if (texturesLoaded) {
+        console.log("Switching to night IBL...");
+        switchIBL(nightTexture);
+    }
+});
+
+// Inspector button
+inspectorButton.addEventListener('click', () => {
+    console.log("Opening Inspector...");
+    scene.debugLayer.show({
+        embedMode: true,
+    });
 });
