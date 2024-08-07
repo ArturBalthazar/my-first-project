@@ -56,8 +56,12 @@ const createScene = () => {
     console.log("Attempting to load model (avatar)...");
     BABYLON.SceneLoader.Append("./", "avatar.glb", scene, function (scene) {
         console.log("Avatar model loaded successfully");
-        const avatar = scene.getMeshByName("avatarMesh"); // Adjust this based on the actual name in the GLB file
-        avatar.position.x = 1.5;
+        // Move all meshes in the avatar to Z = 1.5
+        scene.meshes.forEach(mesh => {
+            if (mesh.name.includes("avatar")) {
+                mesh.position.z = 1.5;
+            }
+        });
 
         // Play animation in a loop
         const animationGroup = scene.getAnimationGroupByName("Celebrated_Clean");
@@ -69,6 +73,15 @@ const createScene = () => {
         console.error("Message:", message);
         console.error("Exception:", exception);
     });
+
+    // Create a circular plane below the objects
+    console.log("Creating circular plane...");
+    const ground = BABYLON.MeshBuilder.CreateDisc("ground", { radius: 2.5 }, scene);
+    ground.rotation.x = Math.PI / 2;
+    ground.position.y = -0.1;
+    const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
+    groundMaterial.diffuseTexture = new BABYLON.Texture("path/to/your/stylized-texture.jpg", scene);
+    ground.material = groundMaterial;
 
     return scene;
 };
