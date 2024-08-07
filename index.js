@@ -58,7 +58,7 @@ const createScene = () => {
         console.log("Avatar model loaded successfully");
         // Move all meshes in the avatar to Z = 1.5
         scene.meshes.forEach(mesh => {
-            if (mesh.name.includes("avatar")) {
+            if (mesh.name.includes("avaturn")) {
                 mesh.position.z = 1.5;
             }
         });
@@ -77,12 +77,13 @@ const createScene = () => {
     // Create a circular plane below the objects
     console.log("Creating circular plane...");
     const ground = BABYLON.MeshBuilder.CreateDisc("ground", { radius: 5 }, scene);
+    ground.rotation.x = Math.PI / 2;
 
     // Create and configure the particle system
     console.log("Creating particle system...");
     const particleSystem = new BABYLON.ParticleSystem("particles", 10000, scene);
     particleSystem.particleTexture = new BABYLON.Texture("https://assets.babylonjs.com/textures/flare.png", scene);
-    particleSystem.emitter = new BABYLON.Vector3(0, 0, 0); // Emitter position
+    particleSystem.emitter = new BABYLON.Vector3(0, 5, 0); // Emitter position (5 meters above the ground)
     particleSystem.minEmitBox = new BABYLON.Vector3(-1, 0, 0); // Starting point
     particleSystem.maxEmitBox = new BABYLON.Vector3(1, 0, 0); // Ending point
 
@@ -110,8 +111,21 @@ const createScene = () => {
     particleSystem.maxEmitPower = 3;
     particleSystem.updateSpeed = 0.05;
 
-    // Start the particle system
-    particleSystem.start();
+    // Do not start the particle system automatically
+    particleSystem.preventAutoStart = true;
+
+    // Function to trigger the particle system
+    const triggerFireworks = () => {
+        particleSystem.start();
+        setTimeout(() => {
+            particleSystem.stop();
+        }, 2000); // Fireworks duration
+    };
+
+    // Add event listener to trigger fireworks on screen click
+    scene.onPointerDown = function () {
+        triggerFireworks();
+    };
 
     return scene;
 };
