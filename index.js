@@ -91,7 +91,7 @@ const createScene = () => {
     console.log("Creating particle system...");
     const particleSystem = new BABYLON.ParticleSystem("particles", 10000, scene);
     particleSystem.particleTexture = new BABYLON.Texture("https://assets.babylonjs.com/textures/flare.png", scene);
-    particleSystem.emitter = new BABYLON.Vector3(0, 5, 0); // Emitter position (5 meters above the ground)
+    particleSystem.emitter = new BABYLON.Vector3(0, 1.4, 0); // Emitter position (5 meters above the ground)
     particleSystem.minEmitBox = new BABYLON.Vector3(-1, 0, 0); // Starting point
     particleSystem.maxEmitBox = new BABYLON.Vector3(1, 0, 0); // Ending point
 
@@ -128,7 +128,7 @@ const createScene = () => {
         particleSystem.start();
         setTimeout(() => {
             particleSystem.stop();
-        }, 50); // Stop the particle system almost immediately
+        }, 200); // Stop the particle system almost immediately
     };
 
     // Add event listener to trigger fireworks on screen click
