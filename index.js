@@ -83,7 +83,7 @@ const createScene = () => {
     console.log("Creating particle system...");
     const particleSystem = new BABYLON.ParticleSystem("particles", 10000, scene);
     particleSystem.particleTexture = new BABYLON.Texture("https://assets.babylonjs.com/textures/flare.png", scene);
-    particleSystem.emitter = new BABYLON.Vector3(0, 5, 0); // Emitter position (5 meters above the ground)
+    particleSystem.emitter = new BABYLON.Vector3(0, 1.4, 0); // Emitter position (5 meters above the ground)
     particleSystem.minEmitBox = new BABYLON.Vector3(-.3, 0, 0); // Starting point
     particleSystem.maxEmitBox = new BABYLON.Vector3(.3, 0, 0); // Ending point
 
@@ -94,8 +94,8 @@ const createScene = () => {
     particleSystem.minSize = 0.05;
     particleSystem.maxSize = 0.1;
 
-    particleSystem.minLifeTime = 2;
-    particleSystem.maxLifeTime = 10;
+    particleSystem.minLifeTime = .5;
+    particleSystem.maxLifeTime = 1;
 
     particleSystem.emitRate = 300;
 
