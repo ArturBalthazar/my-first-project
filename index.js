@@ -102,8 +102,8 @@ const createScene = () => {
     particleSystem.minSize = 0.05;
     particleSystem.maxSize = 0.1;
 
-    particleSystem.minLifeTime = 1;
-    particleSystem.maxLifeTime = 2;
+    particleSystem.minLifeTime = 2;
+    particleSystem.maxLifeTime = 6;
 
     particleSystem.emitRate = 300;
 
@@ -124,11 +124,11 @@ const createScene = () => {
 
     // Function to trigger the particle system
     const triggerFireworks = () => {
-        particleSystem.manualEmitCount = 10000; // Emit all particles at once
+        particleSystem.manualEmitCount = 2000; // Emit all particles at once
         particleSystem.start();
         setTimeout(() => {
             particleSystem.stop();
-        }, 200); // Stop the particle system almost immediately
+        }, 1000); // Stop the particle system almost immediately
     };
 
     // Add event listener to trigger fireworks on screen click
