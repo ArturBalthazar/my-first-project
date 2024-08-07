@@ -86,13 +86,14 @@ const createScene = () => {
 
     ground.material = glowingMaterial;
 
+
     // Create and configure the particle system
     console.log("Creating particle system...");
     const particleSystem = new BABYLON.ParticleSystem("particles", 10000, scene);
     particleSystem.particleTexture = new BABYLON.Texture("https://assets.babylonjs.com/textures/flare.png", scene);
-    particleSystem.emitter = new BABYLON.Vector3(0, 1.4, 0); // Emitter position (5 meters above the ground)
-    particleSystem.minEmitBox = new BABYLON.Vector3(-.3, 0, 0); // Starting point
-    particleSystem.maxEmitBox = new BABYLON.Vector3(.3, 0, 0); // Ending point
+    particleSystem.emitter = new BABYLON.Vector3(0, 5, 0); // Emitter position (5 meters above the ground)
+    particleSystem.minEmitBox = new BABYLON.Vector3(-1, 0, 0); // Starting point
+    particleSystem.maxEmitBox = new BABYLON.Vector3(1, 0, 0); // Ending point
 
     particleSystem.color1 = new BABYLON.Color4(0, 0.33, 1, 1);
     particleSystem.color2 = new BABYLON.Color4(0, 0.95, 1, 1);
@@ -101,8 +102,8 @@ const createScene = () => {
     particleSystem.minSize = 0.05;
     particleSystem.maxSize = 0.1;
 
-    particleSystem.minLifeTime = .5;
-    particleSystem.maxLifeTime = 1;
+    particleSystem.minLifeTime = 1;
+    particleSystem.maxLifeTime = 2;
 
     particleSystem.emitRate = 300;
 
@@ -118,15 +119,16 @@ const createScene = () => {
     particleSystem.maxEmitPower = 3;
     particleSystem.updateSpeed = 0.05;
 
-    // Do not start the particle system automatically
-    particleSystem.preventAutoStart = true;
+    // Manual emit count to simulate a burst
+    particleSystem.manualEmitCount = 0;
 
     // Function to trigger the particle system
     const triggerFireworks = () => {
+        particleSystem.manualEmitCount = 10000; // Emit all particles at once
         particleSystem.start();
         setTimeout(() => {
             particleSystem.stop();
-        }, 2000); // Fireworks duration
+        }, 50); // Stop the particle system almost immediately
     };
 
     // Add event listener to trigger fireworks on screen click
