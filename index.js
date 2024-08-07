@@ -15,7 +15,7 @@ const createScene = () => {
     const camera = new BABYLON.ArcRotateCamera('camera1', BABYLON.Tools.ToRadians(45), BABYLON.Tools.ToRadians(75), 40, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, true);
     camera.lowerRadiusLimit = 5;  // Minimum zoom distance (half the start distance)
-    camera.upperRadiusLimit = 15;  // Maximum zoom distance (start distance)
+    camera.upperRadiusLimit = 10;  // Maximum zoom distance (start distance)
     camera.wheelDeltaPercentage = 0.01;  // Smoother zoom
 
     const light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1, 1, 0), scene);
@@ -29,10 +29,10 @@ const createScene = () => {
     hdrTextureDay.onLoadObservable.addOnce(() => {
         hdrTextureNight.onLoadObservable.addOnce(() => {
             console.log("IBL environments preloaded.");
-            scene.environmentTexture = hdrTextureDay;  // Set the initial environment texture
         });
     });
-
+    scene.environmentTexture = hdrTextureDay;  // Set the initial environment texture
+    
     // Set the background texture
     console.log("Setting background texture...");
     const backgroundTexture = new BABYLON.CubeTexture(
@@ -42,12 +42,30 @@ const createScene = () => {
     );
     const skybox = scene.createDefaultSkybox(backgroundTexture, true, 1000);
 
-    // Load the GLB model
-    console.log("Attempting to load model...");
+    // Load the GLB model (car)
+    console.log("Attempting to load model (car)...");
     BABYLON.SceneLoader.Append("./", "model.glb", scene, function () {
-        console.log("Model loaded successfully");
+        console.log("Car model loaded successfully");
     }, function (scene, message, exception) {
-        console.error("Failed to load model");
+        console.error("Failed to load car model");
+        console.error("Message:", message);
+        console.error("Exception:", exception);
+    });
+
+    // Load the GLB model (avatar)
+    console.log("Attempting to load model (avatar)...");
+    BABYLON.SceneLoader.Append("./", "avatar.glb", scene, function (scene) {
+        console.log("Avatar model loaded successfully");
+        const avatar = scene.getMeshByName("avatarMesh"); // Adjust this based on the actual name in the GLB file
+        avatar.position.x = 1.5;
+
+        // Play animation in a loop
+        const animationGroup = scene.getAnimationGroupByName("Celebrated_Clean");
+        if (animationGroup) {
+            animationGroup.start(true, 1.0, animationGroup.from, animationGroup.to, false);
+        }
+    }, function (scene, message, exception) {
+        console.error("Failed to load avatar model");
         console.error("Message:", message);
         console.error("Exception:", exception);
     });
