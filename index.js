@@ -84,8 +84,8 @@ const createScene = () => {
     const particleSystem = new BABYLON.ParticleSystem("particles", 10000, scene);
     particleSystem.particleTexture = new BABYLON.Texture("https://assets.babylonjs.com/textures/flare.png", scene);
     particleSystem.emitter = new BABYLON.Vector3(0, 5, 0); // Emitter position (5 meters above the ground)
-    particleSystem.minEmitBox = new BABYLON.Vector3(-1, 0, 0); // Starting point
-    particleSystem.maxEmitBox = new BABYLON.Vector3(1, 0, 0); // Ending point
+    particleSystem.minEmitBox = new BABYLON.Vector3(-.3, 0, 0); // Starting point
+    particleSystem.maxEmitBox = new BABYLON.Vector3(.3, 0, 0); // Ending point
 
     particleSystem.color1 = new BABYLON.Color4(0, 0.33, 1, 1);
     particleSystem.color2 = new BABYLON.Color4(0, 0.95, 1, 1);
@@ -94,7 +94,7 @@ const createScene = () => {
     particleSystem.minSize = 0.05;
     particleSystem.maxSize = 0.1;
 
-    particleSystem.minLifeTime = 5;
+    particleSystem.minLifeTime = 2;
     particleSystem.maxLifeTime = 10;
 
     particleSystem.emitRate = 300;
