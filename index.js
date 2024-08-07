@@ -79,6 +79,26 @@ const createScene = () => {
     const ground = BABYLON.MeshBuilder.CreateDisc("ground", { radius: 5 }, scene);
     ground.rotation.x = Math.PI / 2;
 
+    // Create a shader material for the circular plane
+    const shaderMaterial = new BABYLON.ShaderMaterial("shader", scene, {
+        vertex: "custom",
+        fragment: "custom",
+    },
+    {
+        attributes: ["position", "uv"],
+        uniforms: ["worldViewProjection", "time"]
+    });
+
+    shaderMaterial.setFloat("time", 0);
+    shaderMaterial.setColor3("color", new BABYLON.Color3(0, 1, 0));
+
+    ground.material = shaderMaterial;
+
+    // Register a render loop to repeatedly update the shader's time variable
+    scene.registerBeforeRender(function () {
+        shaderMaterial.setFloat("time", performance.now() * 0.001);
+    });
+
     // Create and configure the particle system
     console.log("Creating particle system...");
     const particleSystem = new BABYLON.ParticleSystem("particles", 10000, scene);
