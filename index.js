@@ -76,12 +76,42 @@ const createScene = () => {
 
     // Create a circular plane below the objects
     console.log("Creating circular plane...");
-    const ground = BABYLON.MeshBuilder.CreateDisc("ground", { radius: 2.5 }, scene);
-    ground.rotation.x = Math.PI / 2;
-    ground.position.y = -0.1;
-    const groundMaterial = new BABYLON.StandardMaterial("groundMaterial", scene);
-    groundMaterial.diffuseTexture = new BABYLON.Texture("path/to/your/stylized-texture.jpg", scene);
-    ground.material = groundMaterial;
+    const ground = BABYLON.MeshBuilder.CreateDisc("ground", { radius: 5 }, scene);
+
+    // Create and configure the particle system
+    console.log("Creating particle system...");
+    const particleSystem = new BABYLON.ParticleSystem("particles", 10000, scene);
+    particleSystem.particleTexture = new BABYLON.Texture("https://assets.babylonjs.com/textures/flare.png", scene);
+    particleSystem.emitter = new BABYLON.Vector3(0, 0, 0); // Emitter position
+    particleSystem.minEmitBox = new BABYLON.Vector3(-1, 0, 0); // Starting point
+    particleSystem.maxEmitBox = new BABYLON.Vector3(1, 0, 0); // Ending point
+
+    particleSystem.color1 = new BABYLON.Color4(0, 0.33, 1, 1);
+    particleSystem.color2 = new BABYLON.Color4(0, 0.95, 1, 1);
+    particleSystem.colorDead = new BABYLON.Color4(0, 0, 0, 1);
+
+    particleSystem.minSize = 0.05;
+    particleSystem.maxSize = 0.1;
+
+    particleSystem.minLifeTime = 5;
+    particleSystem.maxLifeTime = 10;
+
+    particleSystem.emitRate = 300;
+
+    particleSystem.gravity = new BABYLON.Vector3(0, -0.5, 0);
+
+    particleSystem.direction1 = new BABYLON.Vector3(-7, 8, 3);
+    particleSystem.direction2 = new BABYLON.Vector3(7, 8, -3);
+
+    particleSystem.minAngularSpeed = 0;
+    particleSystem.maxAngularSpeed = Math.PI;
+
+    particleSystem.minEmitPower = 1;
+    particleSystem.maxEmitPower = 3;
+    particleSystem.updateSpeed = 0.05;
+
+    // Start the particle system
+    particleSystem.start();
 
     return scene;
 };
