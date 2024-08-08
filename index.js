@@ -7,40 +7,21 @@ console.log("Babylon.js engine created");
 
 let hdrTextureDay, hdrTextureNight;
 
-const createInitialScene = () => {
-    console.log("Creating initial scene...");
+const createScene = () => {
+    console.log("Creating scene...");
     const scene = new BABYLON.Scene(engine);
 
     // Create a basic light and camera
     const camera = new BABYLON.ArcRotateCamera('camera1', BABYLON.Tools.ToRadians(45), BABYLON.Tools.ToRadians(75), 40, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, true);
-    camera.location.y = 0.5;
     camera.lowerRadiusLimit = 4;  // Minimum zoom distance (half the start distance)
-    camera.upperRadiusLimit = 10;  // Maximum zoom distance (start distance)
+    camera.upperRadiusLimit = 9;  // Maximum zoom distance (start distance)
     camera.wheelDeltaPercentage = 0.01;  // Smoother zoom
 
     const light = new BABYLON.HemisphericLight('light1', new BABYLON.Vector3(1, 1, 0), scene);
 
-    // Create a circular plane below the objects
-    console.log("Creating circular plane...");
-    const ground = BABYLON.MeshBuilder.CreateDisc("ground", { radius: 5 }, scene);
-    ground.rotation.x = Math.PI / 2;
-
-    // Create and configure the white material with glow effect
-    const whiteMaterial = new BABYLON.StandardMaterial("whiteMaterial", scene);
-    whiteMaterial.diffuseColor = new BABYLON.Color3(1, 1, 1); // White color
-    ground.material = whiteMaterial;
-
-    // Create glow layer
-    const glowLayer = new BABYLON.GlowLayer("glow", scene);
-    glowLayer.intensity = 1;
-
-    return scene;
-};
-
-const loadAdditionalAssets = (scene) => {
-    // Load the IBL environment textures
-    console.log("Loading IBL environments...");
+    // Load the initial IBL environment texture (day)
+    console.log("Loading initial IBL environment...");
     hdrTextureDay = new BABYLON.CubeTexture.CreateFromPrefilteredData("./day.env", scene);
     hdrTextureNight = new BABYLON.CubeTexture.CreateFromPrefilteredData("./night.env", scene);
 
@@ -61,7 +42,7 @@ const loadAdditionalAssets = (scene) => {
     );
     const skybox = scene.createDefaultSkybox(backgroundTexture, true, 1000);
 
-    // Load the GLB model (car)
+    // Load the primary GLB model (car)
     console.log("Attempting to load primary model (car)...");
     BABYLON.SceneLoader.Append("./", "model.glb", scene, function () {
         console.log("Car model loaded successfully");
@@ -92,27 +73,31 @@ const loadAdditionalAssets = (scene) => {
         console.error("Message:", message);
         console.error("Exception:", exception);
     });
-};
 
-const initialScene = createInitialScene();
+    // Create a circular plane below the objects
+    console.log("Creating circular plane...");
+    const ground = BABYLON.MeshBuilder.CreateDisc("ground", { radius: 5 }, scene);
+    ground.rotation.x = Math.PI / 2;
+
+    // Create and configure the glowing material
+    const glowingMaterial = new BABYLON.StandardMaterial("glowingMaterial", scene);
+    glowingMaterial.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0); // No diffuse color to let emissive color shine
+
+    ground.material = glowingMaterial;
+
+const scene = createScene();
 engine.runRenderLoop(() => {
-    initialScene.render();
+    scene.render();
 });
 
 window.addEventListener('resize', () => {
     engine.resize();
 });
 
-window.addEventListener('load', () => {
-    setTimeout(() => {
-        loadAdditionalAssets(initialScene);
-    }, 100);  // Delay loading additional assets by 100ms to ensure initial scene is visible
-});
-
 // Function to switch IBL
 const switchIBL = (newTexture) => {
     const targetTexture = newTexture;
-    initialScene.environmentTexture = targetTexture;
+    scene.environmentTexture = targetTexture;
 };
 
 // Event listeners for buttons
@@ -129,10 +114,10 @@ document.getElementById('nightButton').addEventListener('click', () => {
 // Inspector button event listener
 document.getElementById('inspectorButton').addEventListener('click', () => {
     console.log("Opening inspector...");
-    if (initialScene.debugLayer.isVisible()) {
-        initialScene.debugLayer.hide();
+    if (scene.debugLayer.isVisible()) {
+        scene.debugLayer.hide();
     } else {
-        initialScene.debugLayer.show({
+        scene.debugLayer.show({
             embedMode: true,
         });
     }
