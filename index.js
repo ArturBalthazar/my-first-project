@@ -14,6 +14,7 @@ const createInitialScene = () => {
     // Create a basic light and camera
     const camera = new BABYLON.ArcRotateCamera('camera1', BABYLON.Tools.ToRadians(45), BABYLON.Tools.ToRadians(75), 40, BABYLON.Vector3.Zero(), scene);
     camera.attachControl(canvas, true);
+    camera.location.y = 0.5;
     camera.lowerRadiusLimit = 4;  // Minimum zoom distance (half the start distance)
     camera.upperRadiusLimit = 10;  // Maximum zoom distance (start distance)
     camera.wheelDeltaPercentage = 0.01;  // Smoother zoom
@@ -105,7 +106,7 @@ window.addEventListener('resize', () => {
 window.addEventListener('load', () => {
     setTimeout(() => {
         loadAdditionalAssets(initialScene);
-    }, 1000);  // Delay loading additional assets by 1 second to ensure initial scene is visible
+    }, 100);  // Delay loading additional assets by 100ms to ensure initial scene is visible
 });
 
 // Function to switch IBL
