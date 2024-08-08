@@ -42,34 +42,34 @@ const createScene = () => {
     );
     const skybox = scene.createDefaultSkybox(backgroundTexture, true, 1000);
 
-    // Load the primary GLB model (car)
-    console.log("Attempting to load primary model (car)...");
+    // Load the GLB model (car)
+    console.log("Attempting to load model (car)...");
     BABYLON.SceneLoader.Append("./", "model.glb", scene, function () {
         console.log("Car model loaded successfully");
-
-        // Load the secondary GLB model (avatar) after the primary model has loaded
-        console.log("Attempting to load secondary model (avatar)...");
-        BABYLON.SceneLoader.Append("./", "avatar.glb", scene, function () {
-            console.log("Avatar model loaded successfully");
-            // Move all meshes in the avatar to Z = 1.5
-            scene.meshes.forEach(mesh => {
-                if (mesh.name.includes("avaturn")) {
-                    mesh.position.z = 1.5;
-                }
-            });
-
-            // Play animation in a loop
-            const animationGroup = scene.getAnimationGroupByName("Celebrated_Clean");
-            if (animationGroup) {
-                animationGroup.start(true, 1.0, animationGroup.from, animationGroup.to, false);
-            }
-        }, function (scene, message, exception) {
-            console.error("Failed to load avatar model");
-            console.error("Message:", message);
-            console.error("Exception:", exception);
-        });
     }, function (scene, message, exception) {
         console.error("Failed to load car model");
+        console.error("Message:", message);
+        console.error("Exception:", exception);
+    });
+
+    // Load the GLB model (avatar)
+    console.log("Attempting to load model (avatar)...");
+    BABYLON.SceneLoader.Append("./", "avatar.glb", scene, function (scene) {
+        console.log("Avatar model loaded successfully");
+        // Move all meshes in the avatar to Z = 1.5
+        scene.meshes.forEach(mesh => {
+            if (mesh.name.includes("avaturn")) {
+                mesh.position.z = 1.5;
+            }
+        });
+
+        // Play animation in a loop
+        const animationGroup = scene.getAnimationGroupByName("Celebrated_Clean");
+        if (animationGroup) {
+            animationGroup.start(true, 1.0, animationGroup.from, animationGroup.to, false);
+        }
+    }, function (scene, message, exception) {
+        console.error("Failed to load avatar model");
         console.error("Message:", message);
         console.error("Exception:", exception);
     });
@@ -81,9 +81,60 @@ const createScene = () => {
 
     // Create and configure the glowing material
     const glowingMaterial = new BABYLON.StandardMaterial("glowingMaterial", scene);
-    glowingMaterial.diffuseColor = new BABYLON.Color3(0.5, 0.5, 0); // No diffuse color to let emissive color shine
+    glowingMaterial.diffuseColor = new BABYLON.Color3(0.5, 1, 0.5); // No diffuse color to let emissive color shine
 
     ground.material = glowingMaterial;
+
+    // Create and configure the particle system
+    console.log("Creating particle system...");
+    const particleSystem = new BABYLON.ParticleSystem("particles", 10000, scene);
+    particleSystem.particleTexture = new BABYLON.Texture("https://assets.babylonjs.com/textures/flare.png", scene);
+    particleSystem.emitter = new BABYLON.Vector3(0, 20, 0); // Emitter position (5 meters above the ground)
+    particleSystem.minEmitBox = new BABYLON.Vector3(-1, 0, 0); // Starting point
+    particleSystem.maxEmitBox = new BABYLON.Vector3(1, 0, 0); // Ending point
+
+    particleSystem.color1 = new BABYLON.Color4(0, 0.33, 1, 1);
+    particleSystem.color2 = new BABYLON.Color4(0, 0.95, 1, 1);
+    particleSystem.colorDead = new BABYLON.Color4(0, 0, 0, 1);
+
+    particleSystem.minSize = 0.05;
+    particleSystem.maxSize = 0.1;
+
+    particleSystem.minLifeTime = 5;
+    particleSystem.maxLifeTime = 10;
+
+    particleSystem.emitRate = 300;
+
+    particleSystem.gravity = new BABYLON.Vector3(0, -0.5, 0);
+
+    particleSystem.direction1 = new BABYLON.Vector3(-7, 8, 3);
+    particleSystem.direction2 = new BABYLON.Vector3(7, 8, -3);
+
+    particleSystem.minAngularSpeed = 0;
+    particleSystem.maxAngularSpeed = Math.PI;
+
+    particleSystem.minEmitPower = 1;
+    particleSystem.maxEmitPower = 3;
+    particleSystem.updateSpeed = 0.05;
+
+    // Do not start the particle system automatically
+    particleSystem.preventAutoStart = true;
+
+    // Function to trigger the particle system
+    const triggerFireworks = () => {
+        particleSystem.start();
+        setTimeout(() => {
+            particleSystem.stop();
+        }, 10000); // Fireworks duration
+    };
+
+    // Add event listener to trigger fireworks on screen click
+    scene.onPointerDown = function () {
+        triggerFireworks();
+    };
+
+    return scene;
+};
 
 const scene = createScene();
 engine.runRenderLoop(() => {
