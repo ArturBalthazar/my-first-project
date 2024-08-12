@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Babylon.js Scene</title>
+    <title>Babylon.js AR</title>
     <style>
         body, html {
             margin: 0;
@@ -18,15 +18,12 @@
             height: 100%;
             touch-action: none;
         }
-        #controls {
+        #arButton {
             position: absolute;
-            top: 10px;
+            bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 100;
-        }
-        .control-button {
-            margin: 0 5px;
             padding: 10px 20px;
             font-size: 16px;
             background-color: #007bff;
@@ -34,50 +31,65 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.3s;
-        }
-        .control-button:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
-        }
-        .control-button:active {
-            background-color: #004494;
-            transform: scale(1.02);
-        }
-        #inspectorButton {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            z-index: 100;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            font-size: 16px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s, transform 0.3s;
-        }
-        #inspectorButton:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
-        }
-        #inspectorButton:active {
-            background-color: #004494;
-            transform: scale(1.02);
         }
     </style>
 </head>
 <body>
     <canvas id="renderCanvas"></canvas>
-    <div id="controls">
-        <button id="dayButton" class="control-button">Day</button>
-        <button id="nightButton" class="control-button">Night</button>
-    </div>
-    <button id="inspectorButton">Open Inspector</button>
+    <button id="arButton">Start AR</button>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
     <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
-    <script src="index.js"></script>
+    <script>
+        const canvas = document.getElementById('renderCanvas');
+        const engine = new BABYLON.Engine(canvas, true);
+
+        const createScene = () => {
+            const scene = new BABYLON.Scene(engine);
+            const camera = new BABYLON.ArcRotateCamera("camera", 0, 0, 10, new BABYLON.Vector3(0, 0, 0), scene);
+            camera.attachControl(canvas, true);
+
+            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0), scene);
+
+            // Load the avatar model
+            BABYLON.SceneLoader.Append("./", "avatar.glb", scene, function () {
+                console.log("Avatar model loaded successfully");
+            });
+
+            return scene;
+        };
+
+        const scene = createScene();
+
+        engine.runRenderLoop(() => {
+            scene.render();
+        });
+
+        window.addEventListener('resize', () => {
+            engine.resize();
+        });
+
+        // AR Button
+        const arButton = document.getElementById('arButton');
+        arButton.addEventListener('click', async () => {
+            if (navigator.xr) {
+                try {
+                    const xr = await scene.createDefaultXRExperienceAsync({
+                        uiOptions: {
+                            sessionMode: "immersive-ar",  // Enable AR mode
+                        },
+                        optionalFeatures: true
+                    });
+
+                    console.log("AR session started");
+                } catch (e) {
+                    console.error("XR not supported or failed to start", e);
+                }
+            } else {
+                console.log("WebXR not supported");
+                alert("AR is not supported on this device/browser.");
+            }
+        });
+    </script>
 </body>
 </html>
