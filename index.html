@@ -11,35 +11,26 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            font-family: Arial, sans-serif;
         }
         #renderCanvas {
             width: 100%;
             height: 100%;
             touch-action: none;
         }
-        #arButton {
+        #arContainer {
             position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            width: 100%;
+            height: 100%;
         }
     </style>
+    <script src="https://cdn.rawgit.com/jeromeetienne/ar.js/1.6.2/aframe/build/aframe-ar.js"></script>
 </head>
 <body>
-    <canvas id="renderCanvas"></canvas>
-    <button id="arButton">Start AR</button>
+    <div id="arContainer">
+        <canvas id="renderCanvas"></canvas>
+    </div>
     <script src="https://cdn.babylonjs.com/babylon.js"></script>
     <script src="https://cdn.babylonjs.com/loaders/babylonjs.loaders.min.js"></script>
-    <script src="https://cdn.babylonjs.com/inspector/babylon.inspector.bundle.js"></script>
     <script>
         const canvas = document.getElementById('renderCanvas');
         const engine = new BABYLON.Engine(canvas, true);
@@ -69,27 +60,20 @@
             engine.resize();
         });
 
-        // AR Button
-        const arButton = document.getElementById('arButton');
-        arButton.addEventListener('click', async () => {
-            if (navigator.xr) {
-                try {
-                    const xr = await scene.createDefaultXRExperienceAsync({
-                        uiOptions: {
-                            sessionMode: "immersive-ar",  // Enable AR mode
-                        },
-                        optionalFeatures: true
-                    });
+        // Initialize AR.js
+        const arContainer = document.getElementById('arContainer');
+        const sceneEl = document.createElement('a-scene');
+        sceneEl.setAttribute('embedded', 'true');
+        sceneEl.setAttribute('arjs', 'sourceType: webcam;');
+        arContainer.appendChild(sceneEl);
 
-                    console.log("AR session started");
-                } catch (e) {
-                    console.error("XR not supported or failed to start", e);
-                }
-            } else {
-                console.log("WebXR not supported");
-                alert("AR is not supported on this device/browser.");
-            }
-        });
+        const markerEl = document.createElement('a-marker');
+        markerEl.setAttribute('preset', 'hiro');
+        sceneEl.appendChild(markerEl);
+
+        const aEntity = document.createElement('a-entity');
+        aEntity.setAttribute('gltf-model', 'url(avatar.glb)');
+        markerEl.appendChild(aEntity);
     </script>
 </body>
 </html>
